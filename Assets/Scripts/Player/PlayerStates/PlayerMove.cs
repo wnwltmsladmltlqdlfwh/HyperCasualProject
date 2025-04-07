@@ -13,17 +13,17 @@ public class PlayerMove : MonoBehaviour, IState<PlayerController>
 
     public void OperatorUpdate(PlayerController sender)
     {
-        if(_playerController)
+        if (_playerController)
         {
-            if(_playerController.CurrentSpeed > 0)
+            if (_playerController.CurrentSpeed > 0)
             {
-                _playerController.transform.Translate(_playerController.MoveDir * _playerController.CurrentSpeed * Time.deltaTime);
+                _playerController.navMeshAgent.SetDestination(_playerController.transform.position + _playerController.MoveDir);
             }
         }
     }
 
     public void OperatorExit(PlayerController sender)
     {
-        
+
     }
 }

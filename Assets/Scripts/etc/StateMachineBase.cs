@@ -11,28 +11,43 @@ public class StateMachineBase<T>
     public StateMachineBase(T sender, IState<T> state)
     {
         m_sender = sender;
+        SetState(state);
     }
 
     public void SetState(IState<T> state)
     {
-        if(m_sender == null || CurState == state || CurState == null)
+        if (m_sender == null)
+        {
+            Debug.LogError("Sender is null. On SetState");
             return;
+        }
 
-        if(CurState != null)
+        if (CurState == state)
+        {
+            Debug.LogWarningFormat("State is same. : ", state);
+            return;
+        }
+
+        if (CurState != null)
             CurState.OperatorExit(m_sender);
-        
+
         CurState = state;
 
-        if(m_sender != null)
+        if (CurState != null)
         {
             CurState.OperatorEnter(m_sender);
         }
+
+        Debug.Log("SetNextState : " + state);
     }
 
     public void DoOperaterUpdate()
     {
         if (m_sender == null)
+        {
+            Debug.LogError("Sender is null. On Update");
             return;
+        }
 
         CurState.OperatorUpdate(m_sender);
     }

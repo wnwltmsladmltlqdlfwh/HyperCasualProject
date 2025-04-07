@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.Overlays;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -13,22 +14,24 @@ public class PlayerController : MonoBehaviour
 
     public float MaxSpeed = 2.0f;
     public float turnDistance = 2.0f;
-
-    public Vector3 MoveDir = Vector3.zero;
+    public Vector3 MoveDir;
 
     public float CurrentSpeed { get; set; }
-
-    public TurnDirection CurrentTurnDirection { get; private set; }
-    public enum TurnDirection
-    {
-        Left = -1,
-        Right = 1,
-    }
 
     private StateMachineBase<PlayerController> stateMachine;
     private Dictionary<PlayerState, IState<PlayerController>> dictionaryState = new Dictionary<PlayerState, IState<PlayerController>>();
 
     public JoystickController joystickController;
+    public NavMeshAgent navMeshAgent;
+
+    private void Awake()
+    {
+        if(joystickController == null)
+            joystickController = FindObjectOfType<JoystickController>();
+
+        if(navMeshAgent == null)
+            navMeshAgent = GetComponent<NavMeshAgent>();
+    }
 
     private void Start()
     {
@@ -43,6 +46,11 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        MoveDir = joystickController?.GetMoveDirection() ?? Vector3.zero;
 
+        if(MoveDir != Vector3.zero)
+            stateMachine.SetState(dictionaryState[PlayerState.Move]);
+
+        stateMachine.DoOperaterUpdate();
     }
 }
