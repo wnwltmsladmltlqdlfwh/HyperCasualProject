@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class PlayerIdle : MonoBehaviour, IState<PlayerController>
+public class PlayerIdle : IState<PlayerController>
 {
     private PlayerController _playerController;
     public void OperatorEnter(PlayerController sender)
     {
         _playerController = sender;
         _playerController.CurrentSpeed = 0f;
+
+        _playerController.animator.SetBool("isRun", false);
+        _playerController.animator.SetFloat("isSpeed", 0f);
     }
 
     public void OperatorUpdate(PlayerController sender)

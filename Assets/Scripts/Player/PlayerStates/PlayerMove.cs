@@ -2,13 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerMove : MonoBehaviour, IState<PlayerController>
+public class PlayerMove : IState<PlayerController>
 {
     private PlayerController _playerController;
     public void OperatorEnter(PlayerController sender)
     {
         _playerController = sender;
         _playerController.CurrentSpeed = _playerController.MaxSpeed;
+        _playerController.animator.SetBool("isRun", true);
     }
 
     public void OperatorUpdate(PlayerController sender)
@@ -17,6 +18,7 @@ public class PlayerMove : MonoBehaviour, IState<PlayerController>
         {
             if (_playerController.CurrentSpeed > 0)
             {
+                _playerController.animator.SetFloat("isSpeed", 1f);
                 _playerController.navMeshAgent.SetDestination(_playerController.transform.position + _playerController.MoveDir);
             }
         }

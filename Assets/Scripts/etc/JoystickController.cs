@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using MyUtils;
+using static MyUtils.Util;
 using JetBrains.Annotations;
 
 public class JoystickController : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
@@ -32,7 +32,7 @@ public class JoystickController : MonoBehaviour, IBeginDragHandler, IDragHandler
         handle.anchoredPosition = Vector2.zero;
         if(fadeCoroutine != null)
             StopCoroutine(fadeCoroutine);
-        fadeCoroutine = StartCoroutine(Util.SetFadeInOut(canvasGroup, true, fadeDuration));
+        fadeCoroutine = StartCoroutine(SetFadeInOut(canvasGroup, true, fadeDuration));
         
         OnDrag(eventData);
     }
@@ -66,7 +66,7 @@ public class JoystickController : MonoBehaviour, IBeginDragHandler, IDragHandler
         // 페이드 아웃 효과
         if (fadeCoroutine != null)
             StopCoroutine(fadeCoroutine);
-        fadeCoroutine = StartCoroutine(Util.SetFadeInOut(canvasGroup, false, fadeDuration));
+        fadeCoroutine = StartCoroutine(SetFadeInOut(canvasGroup, false, fadeDuration));
     }
 
     public Vector3 GetMoveDirection()

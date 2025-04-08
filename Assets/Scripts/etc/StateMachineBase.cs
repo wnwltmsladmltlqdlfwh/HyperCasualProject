@@ -6,7 +6,7 @@ public class StateMachineBase<T>
 {
     private T m_sender;
 
-    public IState<T> CurState { get; set; }
+    public IState<T> CurrentState { get; set; }
 
     public StateMachineBase(T sender, IState<T> state)
     {
@@ -22,20 +22,20 @@ public class StateMachineBase<T>
             return;
         }
 
-        if (CurState == state)
+        if (CurrentState == state)
         {
             Debug.LogWarningFormat("State is same. : ", state);
             return;
         }
 
-        if (CurState != null)
-            CurState.OperatorExit(m_sender);
+        if (CurrentState != null)
+            CurrentState.OperatorExit(m_sender);
 
-        CurState = state;
+        CurrentState = state;
 
-        if (CurState != null)
+        if (CurrentState != null)
         {
-            CurState.OperatorEnter(m_sender);
+            CurrentState.OperatorEnter(m_sender);
         }
 
         Debug.Log("SetNextState : " + state);
@@ -49,6 +49,6 @@ public class StateMachineBase<T>
             return;
         }
 
-        CurState.OperatorUpdate(m_sender);
+        CurrentState.OperatorUpdate(m_sender);
     }
 }
