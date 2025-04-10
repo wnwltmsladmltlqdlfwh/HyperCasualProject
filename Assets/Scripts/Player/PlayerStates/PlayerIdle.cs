@@ -13,6 +13,7 @@ public class PlayerIdle : IState<PlayerController>
 
         _playerController.animator.SetBool("isRun", false);
         _playerController.animator.SetFloat("isSpeed", 0f);
+        _playerController.isMoving = false;
     }
 
     public void OperatorUpdate(PlayerController sender)

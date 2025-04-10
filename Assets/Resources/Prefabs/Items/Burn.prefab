@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 3258911911766759859}
   - component: {fileID: 2360157539108245017}
-  - component: {fileID: 1384288176806934145}
-  - component: {fileID: -4592049221858935880}
+  - component: {fileID: 4335806846766126921}
+  - component: {fileID: 1571202858418250177}
   m_Layer: 0
   m_Name: Burn
   m_TagString: Untagged
@@ -47,8 +47,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f86d897b5274ded4a95725ddf120e2a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  itemPrefab: {fileID: 6656850957363770269}
   itemType: 0
---- !u!54 &1384288176806934145
+  price: 0
+--- !u!54 &4335806846766126921
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -75,7 +77,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!65 &-4592049221858935880
+--- !u!65 &1571202858418250177
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -94,8 +96,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.7010505, y: 0.336225, z: 0.7317543}
-  m_Center: {x: -0.012316838, y: 0.027161166, z: -0.0044918656}
+  m_Size: {x: 1.3999999, y: 0.70367783, z: 1.4}
+  m_Center: {x: 0.000000029802322, y: 0.048402727, z: 0}
 --- !u!1001 &5067943302737917590
 PrefabInstance:
   m_ObjectHideFlags: 0

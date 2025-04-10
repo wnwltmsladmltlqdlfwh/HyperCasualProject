@@ -10,6 +10,7 @@ public class PlayerMove : IState<PlayerController>
         _playerController = sender;
         _playerController.CurrentSpeed = _playerController.MaxSpeed;
         _playerController.animator.SetBool("isRun", true);
+        _playerController.isMoving = true;
     }
 
     public void OperatorUpdate(PlayerController sender)
