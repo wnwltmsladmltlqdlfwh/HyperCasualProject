@@ -29,6 +29,9 @@ public class MerchandiseItem : MonoBehaviour
         if (_collider == null)
             _collider = GetComponent<BoxCollider>();
 
+        if(_rigidbody.isKinematic == true)
+            TurnOnPhysics(true);
+
         // 프리팹을 가져와서 collider 사이즈에 맞추기
         Renderer[] renderers = itemPrefab.GetComponentsInChildren<Renderer>();
 

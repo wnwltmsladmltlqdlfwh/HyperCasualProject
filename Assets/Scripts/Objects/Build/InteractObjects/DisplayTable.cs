@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using UnityEngine.UIElements;
+using System.Linq;
 
 public class DisplayTable : InteractedObjectBase
 {
     [SerializeField]
     private Transform setDisplayItems;
 
-    private Stack<MerchandiseItem> displayItems = new Stack<MerchandiseItem>();
+    public Stack<MerchandiseItem> displayItems = new Stack<MerchandiseItem>();
 
     public ItemType itemType;
 
@@ -24,7 +25,7 @@ public class DisplayTable : InteractedObjectBase
 
     public void InitDisplayTable()
     {
-        CustomerManager.Instance.displayTableDict.Add(itemType, this);
+        InteractedObjectManager.Instance.displayTableDict.Add(itemType, this);
     }
 
     public override void TriggerEnter()
@@ -49,13 +50,19 @@ public class DisplayTable : InteractedObjectBase
             if (displayBurn == null)
                 return;
 
+            int index = displayItems.Count;
+
             displayItems.Push(displayBurn);
             displayBurn.transform.SetParent(setDisplayItems);
 
-            int index = displayItems.Count - 1;
-            Vector3 targetPos = new Vector3(0f, index * 0.3f, 0f);
+            int xPos = (index % 3) - 1;
+            int yPos = index / 6;
+            int zPos = index / 3;
 
-            displayBurn.transform.DOJump(setDisplayItems.position, 1f, 1, 1f)
+            Vector3 targetPos = (zPos % 2 == 0)
+                ? new Vector3(xPos, yPos * 0.3f, 0.4f) : new Vector3(xPos, yPos * 0.3f, -0.4f);
+
+            displayBurn.transform.DOLocalJump(targetPos, 1f, 1, 1f)
                                     .OnComplete(() =>
                                     {
                                         displayBurn.transform.localPosition = targetPos;
@@ -67,33 +74,48 @@ public class DisplayTable : InteractedObjectBase
         }
     }
 
-    private void SetOnDisplayTable(MerchandiseItem addedItem)
-    {
-        for (int i = 0; i < setDisplayItems.childCount; i++)
-        {
-            if (setDisplayItems.GetChild(i) == addedItem)
-            {
-                //displayBurn.transform.localPosition = new Vector3(0f, index * 0.3f, 0f);
-                Debug.Log(addedItem.transform.localPosition.y);
-                break;
-            }
-        }
-
-        addedItem.transform.localRotation = Quaternion.identity;
-    }
-
     public override void TriggerExit()
     {
         base.TriggerExit();
     }
 
+    public void GiveItemToCustomer(Customer customer, Transform targetTransform)
+    {
+        if (displayItems.Count == 0)
+        {
+            Debug.Log("DisplayTable : No Item in DisplayTable");
+            return;
+        }
+
+        if (customer.shoppingTrayStack.Count >= customer.needItemCapacity)
+        {
+            return;
+        }
+
+        MerchandiseItem item = displayItems.Pop();
+
+        item.transform.SetParent(customer.trayObject.transform);
+
+        customer.ReceiveItem(item);
+        int currentItemCount = customer.shoppingTrayStack.Count - 1;
+        item.transform.DOLocalJump(targetTransform.position, 1f, 1, 1f)
+                      .OnComplete(() =>
+                      {
+                            item.transform.localRotation = Quaternion.identity;
+                            item.transform.localPosition = new Vector3(0f, 0.3f + (0.6f * currentItemCount), 0f);
+                      });
+    }
+
     public void UpdateCustomersQueue()
     {
+        if (customersQueue.Count <= 0)
+            return;
+
         int index = 0;
 
-        foreach(var customer in customersQueue)
+        foreach (var customer in customersQueue)
         {
-            Vector3 targetPos = transform.position + new Vector3(0f, 0f, -1f - (index * 1f));
+            Vector3 targetPos = transform.position + new Vector3(0f, 0f, -1f - (index * 1.5f));
             customer.navMeshAgent.SetDestination(targetPos);
             index++;
         }

@@ -1,9 +1,6 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
-using Unity.VisualScripting.Dependencies.Sqlite;
-using UnityEditor;
+using System.Linq;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -26,12 +23,13 @@ public class Customer : MonoBehaviour
     public Animator animator;
 
 
-    [SerializeField]
-    private GameObject trayObject;
-    public Transform overTray;
-    public Stack<MerchandiseItem> shoppingTray = new Stack<MerchandiseItem>();
+    public GameObject trayObject;
+    public Transform jumpPoint;
+    public Stack<MerchandiseItem> shoppingTrayStack = new Stack<MerchandiseItem>();
     public ItemType needItemType { get; private set; }
-    int needItemCount;
+    public int needItemCapacity;
+
+    public bool eatInShop = false;
 
     void Start()
     {
@@ -51,7 +49,12 @@ public class Customer : MonoBehaviour
         int setRandomItemType = UnityEngine.Random.Range(0, System.Enum.GetValues(typeof(ItemType)).Length);
 
         needItemType = (ItemType)setRandomItemType;
-        needItemCount = UnityEngine.Random.Range(1, 3);
+        //needItemCapacity = Random.Range(1, 3);
+        needItemCapacity = 2;
+        eatInShop = Random.Range(0, 2) == 1 ? true : false;
+
+        shoppingTrayStack.Clear();
+        trayObject.SetActive(false);
 
         stateMachine = new StateMachineBase<Customer>(this, dictionaryState[CustomerState.Enter]);
     }
@@ -84,21 +87,36 @@ public class Customer : MonoBehaviour
 
     void Update()
     {
-        if (stateMachine.CurrentState == dictionaryState[CustomerState.Enter])
-        {
-            if (!navMeshAgent.pathPending && navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance)
-            {
-                if (!navMeshAgent.hasPath || navMeshAgent.velocity.sqrMagnitude == 0f)
-                {
-                    stateMachine.SetState(dictionaryState[CustomerState.WaitRestock]);
-                }
-            }
-        }
-        else if (stateMachine.CurrentState == dictionaryState[CustomerState.WaitRestock])
-        {
-
-        }
+        if (stateMachine == null)
+            return;
 
         stateMachine.DoOperaterUpdate();
+    }
+
+    public void ReceiveItem(MerchandiseItem item)
+    {
+        shoppingTrayStack.Push(item);
+        trayObject.SetActive(shoppingTrayStack.Count > 0);
+        animator.SetInteger("isCarryObjects", shoppingTrayStack.Count);
+    }
+
+    public void ClearShoppingTray()
+    {
+        float duration = 0f;
+        while (shoppingTrayStack.Count > 0)
+        {
+            duration += Time.deltaTime;
+
+            if (duration >= 0.2f)
+            {
+                MerchandiseItem item = shoppingTrayStack.Pop();
+                item.transform.SetParent(null);
+                ItemManager.Instance.ReturnItem(item.name, item);
+                duration = 0f;
+            }
+        }
+
+        trayObject.SetActive(shoppingTrayStack.Count > 0);
+        animator.SetInteger("isCarryObjects", shoppingTrayStack.Count);
     }
 }

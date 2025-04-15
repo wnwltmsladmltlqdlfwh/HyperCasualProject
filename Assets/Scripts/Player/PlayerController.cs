@@ -83,8 +83,8 @@ public class PlayerController : MonoBehaviour
 
         item.transform.SetParent(overTray);
 
-        item.transform.localPosition = new Vector3(0f, (item.topY * 2f * (objectStack.Count - 1)) - 0.6f, 0f);
-
+        //item.transform.localPosition = new Vector3(0f, (item.topY * 2f * (objectStack.Count - 1)) - 0.6f, 0f);
+        item.transform.localPosition = new Vector3(0f, 0.6f * (objectStack.Count - 1), 0f);
         item.transform.localRotation = Quaternion.identity;
 
         item.TurnOnPhysics(false);
@@ -112,7 +112,7 @@ public class PlayerController : MonoBehaviour
 
                 trayObject.SetActive(objectStack.Count > 0);
                 animator.SetInteger("isCarryObjects", objectStack.Count);
-                
+
                 return findItem;
             }
         }

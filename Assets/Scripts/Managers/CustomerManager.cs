@@ -8,12 +8,10 @@ public class CustomerManager : Singleton<CustomerManager>
 
     public ObjectPool<Customer> customerPool;
 
-    public bool loadComplete = false;
-
     [SerializeField]
     private Transform customerSpawnPos;
     public Transform customerEnterPos;
-    public Dictionary<ItemType, DisplayTable> displayTableDict = new Dictionary<ItemType, DisplayTable>();
+    public List<Customer> forCheckCustomerList = new List<Customer>();
 
     private int customerCurrentCount;
     [SerializeField]
@@ -24,7 +22,7 @@ public class CustomerManager : Singleton<CustomerManager>
 
     void Start()
     {
-        LoadItemPrefabs();
+        CreatePool(customerPrefab, 5);
     }
 
     void Update()
@@ -43,16 +41,20 @@ public class CustomerManager : Singleton<CustomerManager>
     private void SpawnCustomer()
     {
         var newCustomer = customerPool.GetObject();
+        forCheckCustomerList.Add(newCustomer);
+        
+        for(int i = 0; i < forCheckCustomerList.Count; i++)
+        {
+            if (forCheckCustomerList[i] == newCustomer)
+            {
+                newCustomer.gameObject.name = "Customer_" + i.ToString();
+                break;
+            }
+        }
+
         newCustomer.transform.position = customerSpawnPos.position;
         newCustomer.InitCustomer();
         customerCurrentCount++;
-    }
-
-    public void LoadItemPrefabs()
-    {
-        CreatePool(customerPrefab, 3);
-
-        loadComplete = true;
     }
 
     public void CreatePool(Customer customerPrefab, int initSize)
@@ -67,9 +69,9 @@ public class CustomerManager : Singleton<CustomerManager>
         return customerPool.GetObject();
     }
 
-    public void ReturnNPC(Customer item)
+    public void ReturnNPC(Customer customer)
     {
-        customerPool.ReturnObject(item);
+        customerPool.ReturnObject(customer);
         customerCurrentCount--;
     }
 }

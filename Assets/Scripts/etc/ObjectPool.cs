@@ -51,6 +51,18 @@ public class ObjectPool<T> where T : MonoBehaviour
         }
     }
 
+    public T FindObject(string name)
+    {
+        foreach (T obj in pool)
+        {
+            if (obj.gameObject.name == name && obj.gameObject.activeSelf == true)
+            {
+                return obj;
+            }
+        }
+        return null;
+    }
+
     public void ReturnObject(T obj)
     {
         obj.gameObject.SetActive(false);

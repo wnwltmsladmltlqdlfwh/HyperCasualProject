@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace CustomerState
@@ -45,13 +46,15 @@ namespace CustomerState
         DisplayTable findDisplayTable;
         Vector3 targetPos;
 
+        float duration = 0f;
+
         public void OperatorEnter(Customer sender)
         {
             _customer = sender;
-            findDisplayTable = CustomerManager.Instance.displayTableDict[_customer.needItemType];
+            findDisplayTable = InteractedObjectManager.Instance.displayTableDict[_customer.needItemType];
             findDisplayTable.customersQueue.Enqueue(_customer);
 
-            targetPos = findDisplayTable.gameObject.transform.position + new Vector3(0f, 0f, -1f -(findDisplayTable.customersQueue.Count * 1f));
+            targetPos = findDisplayTable.gameObject.transform.position + new Vector3(0f, 0f, -1f - (findDisplayTable.customersQueue.Count * 1f));
 
             _customer.navMeshAgent.SetDestination(targetPos);
         }
@@ -65,6 +68,31 @@ namespace CustomerState
                     if (!_customer.navMeshAgent.hasPath || _customer.navMeshAgent.velocity.sqrMagnitude == 0f)
                     {
                         _customer.transform.LookAt(findDisplayTable.transform);
+
+                        if (_customer.shoppingTrayStack.Count >= _customer.needItemCapacity)
+                        {
+                            duration += Time.deltaTime;
+                            if (duration >= 1f)
+                            {
+                                findDisplayTable.customersQueue.Dequeue();
+                                findDisplayTable.UpdateCustomersQueue();
+                                _customer.stateMachine.SetState(_customer.dictionaryState[Customer.CustomerState.StandInLine]);
+                                duration = 0f;
+                            }
+                        }
+
+                        if (findDisplayTable.customersQueue.Count > 0
+                            && findDisplayTable.customersQueue.Peek() == _customer
+                            && _customer.shoppingTrayStack.Count < _customer.needItemCapacity
+                            && findDisplayTable.displayItems.Count > 0)
+                        {
+                            duration += Time.deltaTime;
+                            if (duration >= 0.5f)
+                            {
+                                findDisplayTable.GiveItemToCustomer(_customer, _customer.jumpPoint);
+                                duration = 0f;
+                            }
+                        }
                     }
                 }
             }
@@ -72,16 +100,7 @@ namespace CustomerState
 
         public void OperatorExit(Customer sender)
         {
-            
-        }
 
-        public void TakeItems()
-        {
-            findDisplayTable.customersQueue.Dequeue();
-
-            findDisplayTable.UpdateCustomersQueue();
-
-            _customer.stateMachine.SetState(_customer.dictionaryState[Customer.CustomerState.StandInLine]);
         }
     }
 
@@ -91,41 +110,95 @@ namespace CustomerState
     public class StandInLine : IState<Customer>
     {
         Customer _customer;
+        Vector3 targetPos;
+        CashierCounter findCounter;
+        bool hasQueueOnce;
 
         public void OperatorEnter(Customer sender)
         {
             _customer = sender;
+
+            findCounter = InteractedObjectManager.Instance.cashierCounter;
+
+            targetPos = findCounter.gameObject.transform.position + new Vector3(0f, 0f, 1f + ((findCounter.payCustomersQueue.Count + 1) * 1.5f));
+            
+            hasQueueOnce = false;
+
+            _customer.navMeshAgent.SetDestination(targetPos);
         }
 
         public void OperatorUpdate(Customer sender)
         {
-            
+            if (_customer)
+            {
+                if (!_customer.navMeshAgent.pathPending && _customer.navMeshAgent.remainingDistance <= _customer.navMeshAgent.stoppingDistance)
+                {
+                    if (!_customer.navMeshAgent.hasPath || _customer.navMeshAgent.velocity.sqrMagnitude == 0f)
+                    {
+                        _customer.transform.LookAt(findCounter.transform);
+
+                        if(!hasQueueOnce && findCounter.payCustomersQueue.Contains(_customer) == false)
+                        {
+                            findCounter.payCustomersQueue.Enqueue(_customer);
+                            findCounter.UpdatePayCustomersQueue();
+                            hasQueueOnce = true;
+                        }
+
+                        if (_customer.shoppingTrayStack.Count <= 0)
+                        {
+                            switch (_customer.eatInShop)
+                            {
+                                case true:
+                                    _customer.stateMachine.SetState(_customer.dictionaryState[Customer.CustomerState.WaitSeat]);
+                                    break;
+                                case false:
+                                    _customer.stateMachine.SetState(_customer.dictionaryState[Customer.CustomerState.GoHome]);
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         public void OperatorExit(Customer sender)
         {
-            throw new System.NotImplementedException();
+
         }
     }
 
     /// <summary>
-    /// 귀가가
+    /// 귀가
     /// </summary>
     public class GoHome : IState<Customer>
     {
+        Customer _customer;
+        Vector3 targetPos;
+
         public void OperatorEnter(Customer sender)
         {
-            throw new System.NotImplementedException();
+            _customer = sender;
+            targetPos = CustomerManager.Instance.customerEnterPos.position;
+            _customer.navMeshAgent.SetDestination(targetPos);
         }
 
         public void OperatorUpdate(Customer sender)
         {
-            throw new System.NotImplementedException();
+            if (_customer)
+            {
+                if (!_customer.navMeshAgent.pathPending && _customer.navMeshAgent.remainingDistance <= _customer.navMeshAgent.stoppingDistance)
+                {
+                    if (!_customer.navMeshAgent.hasPath || _customer.navMeshAgent.velocity.sqrMagnitude == 0f)
+                    {
+                        CustomerManager.Instance.ReturnNPC(_customer);
+                    }
+                }
+            }
         }
 
         public void OperatorExit(Customer sender)
         {
-            throw new System.NotImplementedException();
+
         }
     }
 
@@ -134,19 +207,44 @@ namespace CustomerState
     /// </summary>
     public class WaitSeat : IState<Customer>
     {
+        Customer _customer;
+        Vector3 targetPos;
+        CashierCounter findCounter;
+        bool hasQueueOnce;
+
         public void OperatorEnter(Customer sender)
         {
-            throw new System.NotImplementedException();
+            _customer = sender;
+            findCounter = InteractedObjectManager.Instance.cashierCounter;
+            targetPos = findCounter.transform.position + new Vector3(2f+ ((findCounter.payCustomersQueue.Count + 1) * 1.5f), 0f, 0f);
+            _customer.navMeshAgent.SetDestination(targetPos);
+            hasQueueOnce = false;
         }
 
         public void OperatorUpdate(Customer sender)
         {
-            throw new System.NotImplementedException();
+            if (_customer)
+            {
+                if (!_customer.navMeshAgent.pathPending && _customer.navMeshAgent.remainingDistance <= _customer.navMeshAgent.stoppingDistance)
+                {
+                    if (!_customer.navMeshAgent.hasPath || _customer.navMeshAgent.velocity.sqrMagnitude == 0f)
+                    {
+                        _customer.transform.LookAt(InteractedObjectManager.Instance.cashierCounter.transform);
+
+                        if(!hasQueueOnce && findCounter.payCustomersQueue.Contains(_customer) == false)
+                        {
+                            findCounter.dineInCustomersQueue.Enqueue(_customer);
+                            findCounter.UpdateDineInQueue();
+                            hasQueueOnce = true;
+                        }
+                    }
+                }
+            }
         }
 
         public void OperatorExit(Customer sender)
         {
-            throw new System.NotImplementedException();
+
         }
     }
 
@@ -157,17 +255,17 @@ namespace CustomerState
     {
         public void OperatorEnter(Customer sender)
         {
-            throw new System.NotImplementedException();
+
         }
 
         public void OperatorUpdate(Customer sender)
         {
-            throw new System.NotImplementedException();
+
         }
 
         public void OperatorExit(Customer sender)
         {
-            throw new System.NotImplementedException();
+
         }
     }
 }
