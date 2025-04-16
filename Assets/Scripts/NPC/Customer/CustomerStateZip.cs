@@ -89,7 +89,7 @@ namespace CustomerState
                             duration += Time.deltaTime;
                             if (duration >= 0.5f)
                             {
-                                findDisplayTable.GiveItemToCustomer(_customer, _customer.jumpPoint);
+                                findDisplayTable.GiveItemToCustomer(_customer, _customer.jumpPoint.position);
                                 duration = 0f;
                             }
                         }
@@ -121,7 +121,7 @@ namespace CustomerState
             findCounter = InteractedObjectManager.Instance.cashierCounter;
 
             targetPos = findCounter.gameObject.transform.position + new Vector3(0f, 0f, 1f + ((findCounter.payCustomersQueue.Count + 1) * 1.5f));
-            
+
             hasQueueOnce = false;
 
             _customer.navMeshAgent.SetDestination(targetPos);
@@ -137,7 +137,7 @@ namespace CustomerState
                     {
                         _customer.transform.LookAt(findCounter.transform);
 
-                        if(!hasQueueOnce && findCounter.payCustomersQueue.Contains(_customer) == false)
+                        if (!hasQueueOnce && findCounter.payCustomersQueue.Contains(_customer) == false)
                         {
                             findCounter.payCustomersQueue.Enqueue(_customer);
                             findCounter.UpdatePayCustomersQueue();
@@ -212,11 +212,13 @@ namespace CustomerState
         CashierCounter findCounter;
         bool hasQueueOnce;
 
+        int debugCount = 0;
+
         public void OperatorEnter(Customer sender)
         {
             _customer = sender;
             findCounter = InteractedObjectManager.Instance.cashierCounter;
-            targetPos = findCounter.transform.position + new Vector3(2f+ ((findCounter.payCustomersQueue.Count + 1) * 1.5f), 0f, 0f);
+            targetPos = findCounter.transform.position + new Vector3(2f + ((findCounter.payCustomersQueue.Count + 1) * 1.5f), 0f, 0f);
             _customer.navMeshAgent.SetDestination(targetPos);
             hasQueueOnce = false;
         }
@@ -231,11 +233,23 @@ namespace CustomerState
                     {
                         _customer.transform.LookAt(InteractedObjectManager.Instance.cashierCounter.transform);
 
-                        if(!hasQueueOnce && findCounter.payCustomersQueue.Contains(_customer) == false)
+                        if (findCounter.payCustomersQueue.Contains(_customer) == false)
                         {
-                            findCounter.dineInCustomersQueue.Enqueue(_customer);
-                            findCounter.UpdateDineInQueue();
-                            hasQueueOnce = true;
+                            if (!hasQueueOnce)
+                            {
+                                findCounter.dineInCustomersQueue.Enqueue(_customer);
+                                findCounter.UpdateDineInQueue();
+                                hasQueueOnce = true;
+                            }
+                            else
+                            {
+                                var dineInTable = InteractedObjectManager.Instance.GetEmptyDineInTable();
+                                if (dineInTable != null)
+                                {
+                                    _customer.stateMachine.SetState(_customer.dictionaryState[Customer.CustomerState.Eating]);
+                                    return;
+                                }
+                            }
                         }
                     }
                 }
@@ -244,7 +258,8 @@ namespace CustomerState
 
         public void OperatorExit(Customer sender)
         {
-
+            findCounter.dineInCustomersQueue.Dequeue();
+            findCounter.UpdateDineInQueue();
         }
     }
 
@@ -253,19 +268,68 @@ namespace CustomerState
     /// </summary>
     public class Eating : IState<Customer>
     {
+        Customer _customer;
+        Vector3 targetPos;
+        DineInTable findDineInTable;
+
+        bool isSeatOnce;
+
+        float duration = 0f;
+
         public void OperatorEnter(Customer sender)
         {
+            _customer = sender;
 
+            findDineInTable = InteractedObjectManager.Instance.GetEmptyDineInTable();
+            if (findDineInTable == null)
+                return;
+
+            findDineInTable.TableStates = DineInTable.DineInTableState.Reserved;
+
+            isSeatOnce = false;
+
+            targetPos = findDineInTable.transform.position + new Vector3(-1f, 0f, 0f);
+            _customer.navMeshAgent.SetDestination(targetPos);
         }
 
         public void OperatorUpdate(Customer sender)
         {
 
+            if (_customer)
+            {
+                if (isSeatOnce == true)
+                {
+                    duration += Time.deltaTime;
+
+                    if (duration > 5f)
+                    {
+                        _customer.transform.position = findDineInTable.transform.position + new Vector3(-1f, 0f, 0f);
+                        _customer.stateMachine.SetState(_customer.dictionaryState[Customer.CustomerState.GoHome]);
+                        duration = 0f;
+                    }
+                }
+                else
+                {
+                    if (!_customer.navMeshAgent.pathPending && _customer.navMeshAgent.remainingDistance <= _customer.navMeshAgent.stoppingDistance)
+                    {
+                        if (!_customer.navMeshAgent.hasPath || _customer.navMeshAgent.velocity.sqrMagnitude == 0f)
+                        {
+                            _customer.navMeshAgent.isStopped = true;
+                            _customer.transform.position = findDineInTable.seatChairTransform.position + new Vector3(0f, 0f, 0.5f);
+                            _customer.transform.localRotation = Quaternion.identity;
+                            findDineInTable.TableStates = DineInTable.DineInTableState.Occupied;
+                            findDineInTable.customerNeedItemCapacity = _customer.needItemCapacity;
+                            isSeatOnce = true;
+                        }
+                    }
+                }
+            }
         }
 
         public void OperatorExit(Customer sender)
         {
-
+            _customer.navMeshAgent.isStopped = false;
+            findDineInTable.TableStates = DineInTable.DineInTableState.NeedCleaning;
         }
     }
 }

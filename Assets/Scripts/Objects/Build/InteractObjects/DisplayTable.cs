@@ -45,7 +45,7 @@ public class DisplayTable : InteractedObjectBase
         duration += Time.deltaTime;
         if (duration >= 0.2f)
         {
-            var displayBurn = player.FindObjectInList(itemType);
+            var displayBurn = GameManager.Instance.player.FindObjectInList(itemType);
 
             if (displayBurn == null)
                 return;
@@ -79,7 +79,7 @@ public class DisplayTable : InteractedObjectBase
         base.TriggerExit();
     }
 
-    public void GiveItemToCustomer(Customer customer, Transform targetTransform)
+    public void GiveItemToCustomer(Customer customer, Vector3 targetPosition)
     {
         if (displayItems.Count == 0)
         {
@@ -98,7 +98,7 @@ public class DisplayTable : InteractedObjectBase
 
         customer.ReceiveItem(item);
         int currentItemCount = customer.shoppingTrayStack.Count - 1;
-        item.transform.DOLocalJump(targetTransform.position, 1f, 1, 1f)
+        item.transform.DOJump(targetPosition, 1f, 1, 1f)
                       .OnComplete(() =>
                       {
                             item.transform.localRotation = Quaternion.identity;

@@ -20,7 +20,11 @@ public class DineInTable : InteractedObjectBase
         {
             if(_dineInTableState == value)
                 return;
+            var oldState = _dineInTableState;
             _dineInTableState = value;
+            if(oldState == DineInTableState.NeedCleaning && _dineInTableState == DineInTableState.Empty)
+                GetMoney();
+
             OnTableSettingState();
         }
     }
@@ -28,14 +32,21 @@ public class DineInTable : InteractedObjectBase
     public GameObject tableSettingPrefab;
     public GameObject trashPrefab;
 
+    public int customerNeedItemCapacity;
+
+    public Transform seatChairTransform;
+
+    [SerializeField]
     private Animator _animator;
+
+    [SerializeField]
+    private MoneySpawn moneySpawnPoint;
 
     public void InitTable()
     {
         _dineInTableState = DineInTableState.Empty;
         tableSettingPrefab.SetActive(false);
         trashPrefab.SetActive(false);
-        _animator = GetComponent<Animator>();
     }
 
     public override void TriggerEnter()
@@ -77,9 +88,20 @@ public class DineInTable : InteractedObjectBase
         {
             _animator.SetTrigger("isDirty");
         }
-        else
+        else if(_dineInTableState == DineInTableState.Empty)
         {
             _animator.SetTrigger("isClean");
         }
+    }
+
+    private void GetMoney()
+    {
+        for(int i = 0; i < customerNeedItemCapacity + 1; i++)
+        {
+            var newMoney = GameManager.Instance.GetMoney();
+            moneySpawnPoint.AddMoneyStack(newMoney);
+        }
+
+        customerNeedItemCapacity = 0;
     }
 }

@@ -5,7 +5,7 @@ using UnityEngine;
 public class ItemManager : Singleton<ItemManager>
 {
     public List<MerchandiseItem> itemBases;
-
+    public Dictionary<string, Transform> parentTransformDict = new Dictionary<string, Transform>();
     private Dictionary<string, ObjectPool<MerchandiseItem>> itemPoolDict = new Dictionary<string, ObjectPool<MerchandiseItem>>();
 
     public bool loadComplete = false;
@@ -18,7 +18,7 @@ public class ItemManager : Singleton<ItemManager>
     public void LoadItemPrefabs()
     {
         var Items = Resources.LoadAll<MerchandiseItem>("Prefabs/Items");
-        foreach(var item in Items)
+        foreach (var item in Items)
         {
             CreatePool(item, 3);
         }
@@ -30,12 +30,13 @@ public class ItemManager : Singleton<ItemManager>
     {
         Transform parentTransform = new GameObject(itemPrefab.itemType.ToString() + "_pool").transform;
         parentTransform.SetParent(this.transform);
+        parentTransformDict[itemPrefab.itemType.ToString()] = parentTransform;
         itemPoolDict[itemPrefab.itemType.ToString()] = new ObjectPool<MerchandiseItem>(itemPrefab, initSize, parentTransform);
     }
 
     public MerchandiseItem GetItem(string prefabName)
     {
-        if(itemPoolDict.ContainsKey(prefabName))
+        if (itemPoolDict.ContainsKey(prefabName))
         {
             return itemPoolDict[prefabName].GetObject();
         }
@@ -45,9 +46,13 @@ public class ItemManager : Singleton<ItemManager>
 
     public void ReturnItem(string prefabName, MerchandiseItem item)
     {
-        if(itemPoolDict.ContainsKey(prefabName))
+        if (itemPoolDict.ContainsKey(prefabName))
         {
             itemPoolDict[prefabName].ReturnObject(item);
+        }
+        if(parentTransformDict.ContainsKey(prefabName))
+        {
+            item.transform.SetParent(parentTransformDict[prefabName]);
         }
     }
 }

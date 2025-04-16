@@ -26,9 +26,9 @@ public class InteractedPad : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.GetComponent<PlayerController>())
+        if (other.GetComponent<PlayerController>())
         {
-            interactedObj.player = other.gameObject.GetComponent<PlayerController>();
+            //interactedObj.player = other.gameObject.GetComponent<PlayerController>();
             testMaterial.color = new Color(0f, 255f, 0f, 255f);
             interactedObj.TriggerEnter();
         }
@@ -36,7 +36,7 @@ public class InteractedPad : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.gameObject.GetComponent<PlayerController>())
+        if (other.GetComponent<PlayerController>())
         {
             if (other.gameObject.GetComponent<PlayerController>().isMoving) return;
 
@@ -50,7 +50,7 @@ public class InteractedPad : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.GetComponent<PlayerController>())
+        if (other.GetComponent<PlayerController>())
         {
             testMaterial.color = new Color(0f, 255f, 255f, 255f);
 

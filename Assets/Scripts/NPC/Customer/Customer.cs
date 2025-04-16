@@ -110,7 +110,6 @@ public class Customer : MonoBehaviour
             if (duration >= 0.2f)
             {
                 MerchandiseItem item = shoppingTrayStack.Pop();
-                item.transform.SetParent(null);
                 ItemManager.Instance.ReturnItem(item.name, item);
                 duration = 0f;
             }
@@ -118,5 +117,13 @@ public class Customer : MonoBehaviour
 
         trayObject.SetActive(shoppingTrayStack.Count > 0);
         animator.SetInteger("isCarryObjects", shoppingTrayStack.Count);
+    }
+
+    public void SetDineInTable(DineInTable table)
+    {
+        if (table == null)
+            return;
+        
+        //table.SetCustomer(this);
     }
 }

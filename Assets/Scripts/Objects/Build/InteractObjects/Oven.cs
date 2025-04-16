@@ -96,7 +96,7 @@ public class Oven : InteractedObjectBase
     {
         base.TriggerStay();
 
-        if (player.objectStack.Count + reservedItemCount >= player.objectCapacity)
+        if (GameManager.Instance.player.objectStack.Count + reservedItemCount >= GameManager.Instance.player.objectCapacity)
             return;
 
         duration += Time.deltaTime;
@@ -107,9 +107,9 @@ public class Oven : InteractedObjectBase
             var takedBurn = burnStack.Pop();
             reservedItemCount++;
 
-            takedBurn.transform.DOJump(player.overTray.position, 1f, 1, 1f).OnComplete(() =>
+            takedBurn.transform.DOJump(GameManager.Instance.player.overTray.position, 1f, 1, 1f).OnComplete(() =>
             {
-                player.AddObjectList(takedBurn);
+                GameManager.Instance.player.AddObjectList(takedBurn);
                 reservedItemCount--;
             });
 

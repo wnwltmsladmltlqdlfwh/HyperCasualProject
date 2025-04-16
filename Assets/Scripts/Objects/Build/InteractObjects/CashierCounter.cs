@@ -8,20 +8,11 @@ using UnityEngine.UI;
 public class CashierCounter : InteractedObjectBase
 {
     public Queue<Customer> payCustomersQueue = new Queue<Customer>();
-
     public Queue<Customer> dineInCustomersQueue = new Queue<Customer>();
-
-    public Text testForCheckCustomerCount;
-
     public GameObject boxingPrefab;
 
-    private void Update()
-    {
-        if (testForCheckCustomerCount != null)
-        {
-            testForCheckCustomerCount.text = "Queue Count : " + payCustomersQueue.Count;
-        }
-    }
+    [SerializeField]
+    private MoneySpawn moneySpawnPoint;
 
     public override void TriggerEnter()
     {
@@ -63,6 +54,9 @@ public class CashierCounter : InteractedObjectBase
         customer.transform.DOJump(customer.transform.position, 0.2f, 3, 0.5f)
                                         .OnComplete(() =>
                                         {
+                                            if(!customer.eatInShop)
+                                                GetMoney(customer);
+
                                             customer.ClearShoppingTray();
                                             UpdatePayCustomersQueue();
                                         });
@@ -71,26 +65,6 @@ public class CashierCounter : InteractedObjectBase
     public override void TriggerExit()
     {
         base.TriggerExit();
-    }
-
-    private int ReturnItemPrice(ItemType itemType, int itemCount)
-    {
-        // 추후 재화 아이템을 제작 후, 아이템을 풀링 해주는 함수만들기,
-        int price;
-
-        // 가격은 ItemType에 따라 다르게 설정
-        switch (itemType)
-        {
-            case ItemType.Burn:
-                price = 100 * itemCount;
-                break;
-
-            default:
-                price = 0;
-                Debug.LogError("Customer's ItemType is null, check");
-                break;
-        }
-        return price;
     }
 
     public void UpdatePayCustomersQueue()
@@ -105,6 +79,15 @@ public class CashierCounter : InteractedObjectBase
             Vector3 targetPos = transform.position + new Vector3(0f, 0f, 1f + (index * 1.5f));
             customer.navMeshAgent.SetDestination(targetPos);
             index++;
+        }
+    }
+
+    public void GetMoney(Customer customer)
+    {
+        for(int i = 0; i < customer.needItemCapacity; i++)
+        {
+            var newMoney = GameManager.Instance.GetMoney();
+            moneySpawnPoint.AddMoneyStack(newMoney);
         }
     }
 
