@@ -638,7 +638,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   navMeshAgent: {fileID: 0}
-  animator: {fileID: 0}
+  animator: {fileID: 434142568054301940}
   trayObject: {fileID: 1127674536288074466}
   jumpPoint: {fileID: 7258203613627078947}
   needItemCapacity: 3
@@ -2460,7 +2460,7 @@ Animator:
   m_Controller: {fileID: 9100000, guid: 97e7fec07fb5492459810de754f3c553, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
-  m_ApplyRootMotion: 1
+  m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_WarningMessage: 

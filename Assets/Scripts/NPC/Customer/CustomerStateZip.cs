@@ -19,8 +19,11 @@ namespace CustomerState
 
         public void OperatorUpdate(Customer sender)
         {
+
             if (_customer)
             {
+                _customer.animator.SetFloat("isSpeed", _customer.navMeshAgent.velocity.magnitude);
+
                 if (!_customer.navMeshAgent.pathPending && _customer.navMeshAgent.remainingDistance <= _customer.navMeshAgent.stoppingDistance)
                 {
                     if (!_customer.navMeshAgent.hasPath || _customer.navMeshAgent.velocity.sqrMagnitude == 0f)
@@ -63,6 +66,8 @@ namespace CustomerState
         {
             if (_customer)
             {
+                _customer.animator.SetFloat("isSpeed", _customer.navMeshAgent.velocity.magnitude);
+
                 if (!_customer.navMeshAgent.pathPending && _customer.navMeshAgent.remainingDistance <= _customer.navMeshAgent.stoppingDistance)
                 {
                     if (!_customer.navMeshAgent.hasPath || _customer.navMeshAgent.velocity.sqrMagnitude == 0f)
@@ -131,6 +136,8 @@ namespace CustomerState
         {
             if (_customer)
             {
+                _customer.animator.SetFloat("isSpeed", _customer.navMeshAgent.velocity.magnitude);
+
                 if (!_customer.navMeshAgent.pathPending && _customer.navMeshAgent.remainingDistance <= _customer.navMeshAgent.stoppingDistance)
                 {
                     if (!_customer.navMeshAgent.hasPath || _customer.navMeshAgent.velocity.sqrMagnitude == 0f)
@@ -186,6 +193,8 @@ namespace CustomerState
         {
             if (_customer)
             {
+                _customer.animator.SetFloat("isSpeed", _customer.navMeshAgent.velocity.magnitude);
+
                 if (!_customer.navMeshAgent.pathPending && _customer.navMeshAgent.remainingDistance <= _customer.navMeshAgent.stoppingDistance)
                 {
                     if (!_customer.navMeshAgent.hasPath || _customer.navMeshAgent.velocity.sqrMagnitude == 0f)
@@ -227,6 +236,8 @@ namespace CustomerState
         {
             if (_customer)
             {
+                _customer.animator.SetFloat("isSpeed", _customer.navMeshAgent.velocity.magnitude);
+
                 if (!_customer.navMeshAgent.pathPending && _customer.navMeshAgent.remainingDistance <= _customer.navMeshAgent.stoppingDistance)
                 {
                     if (!_customer.navMeshAgent.hasPath || _customer.navMeshAgent.velocity.sqrMagnitude == 0f)
@@ -314,8 +325,9 @@ namespace CustomerState
                     {
                         if (!_customer.navMeshAgent.hasPath || _customer.navMeshAgent.velocity.sqrMagnitude == 0f)
                         {
+                            _customer.animator.SetTrigger("isSit");
                             _customer.navMeshAgent.isStopped = true;
-                            _customer.transform.position = findDineInTable.seatChairTransform.position + new Vector3(0f, 0f, 0.5f);
+                            _customer.transform.position = findDineInTable.seatChairTransform.position + new Vector3(0f, 0.35f, 0f);
                             _customer.transform.localRotation = Quaternion.identity;
                             findDineInTable.TableStates = DineInTable.DineInTableState.Occupied;
                             findDineInTable.customerNeedItemCapacity = _customer.needItemCapacity;
@@ -330,6 +342,7 @@ namespace CustomerState
         {
             _customer.navMeshAgent.isStopped = false;
             findDineInTable.TableStates = DineInTable.DineInTableState.NeedCleaning;
+            _customer.animator.SetTrigger("isStandUp");
         }
     }
 }

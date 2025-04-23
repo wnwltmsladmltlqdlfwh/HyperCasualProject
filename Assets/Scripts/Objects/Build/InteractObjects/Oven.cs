@@ -35,7 +35,7 @@ public class Oven : InteractedObjectBase
         setStartPosition = new Vector3(0f, 0.6f, 0f);
         burnObject.transform.localPosition = setStartPosition;
 
-        animTween = burnObject.DOLocalMoveZ(-2.0f, setBakedAnimTime)
+        animTween = burnObject.DOLocalMoveY(2.3f, setBakedAnimTime)
                     .SetAutoKill(false)
                     .Pause()
                     .OnComplete(() => BakedNewBurn());
@@ -59,22 +59,7 @@ public class Oven : InteractedObjectBase
 
     private void Update()
     {
-        /*
-        if (burnStack.Count < capacity)
-        {
-            bakedTime += Time.deltaTime;
-
-            if (bakedTime >= setBakedAnimTime)
-            {
-                // 빵 스폰
-                var newBurn = ItemManager.Instance.GetItem("Burn");
-                newBurn.InitItem();
-                burnStack.Push(newBurn);
-                newBurn.transform.position = burnBoxTransform.position + new Vector3(0f, 2f, 0f);
-                bakedTime = 0f;
-            }
-        }
-        */
+        
     }
 
     private void BakedNewBurn()
