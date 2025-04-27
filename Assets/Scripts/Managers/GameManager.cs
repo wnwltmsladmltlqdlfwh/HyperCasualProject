@@ -10,6 +10,8 @@ public class GameManager : Singleton<GameManager>
     public ObjectPool<Money> moneyPool;
     Transform parentTransform;
 
+    bool canBuildDineTable = false;
+
     [SerializeField]
     private int _money;
     public int Money
@@ -18,9 +20,11 @@ public class GameManager : Singleton<GameManager>
         set
         {
             _money = value;
-            if(_money == 300)
+            if(_money == 300 && canBuildDineTable == false)
+            {
+                canBuildDineTable = true;
                 _= StartCoroutine(UIManager.Instance.MoveCameraToObject(InteractedObjectManager.Instance.GetBuildPad().transform));
-                //UIManager.Instance.CameraMoveToObject(InteractedObjectManager.Instance.GetBuildPad().transform);
+            }
 
             UIManager.Instance.UpdateMoneyText(_money);
         }

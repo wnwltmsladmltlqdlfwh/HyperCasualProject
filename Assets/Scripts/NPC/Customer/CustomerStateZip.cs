@@ -308,6 +308,8 @@ namespace CustomerState
 
             if (_customer)
             {
+                _customer.animator.SetFloat("isSpeed", _customer.navMeshAgent.velocity.magnitude);
+                
                 if (isSeatOnce == true)
                 {
                     duration += Time.deltaTime;

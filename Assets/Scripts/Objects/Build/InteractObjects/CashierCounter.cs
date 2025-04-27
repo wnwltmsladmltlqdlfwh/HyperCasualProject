@@ -54,8 +54,7 @@ public class CashierCounter : InteractedObjectBase
         customer.transform.DOJump(customer.transform.position, 0.2f, 3, 0.5f)
                                         .OnComplete(() =>
                                         {
-                                            if(!customer.eatInShop)
-                                                GetMoney(customer);
+                                            GetMoney(customer);
 
                                             customer.ClearShoppingTray();
                                             UpdatePayCustomersQueue();

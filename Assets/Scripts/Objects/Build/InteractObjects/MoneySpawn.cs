@@ -24,7 +24,7 @@ public class MoneySpawn : InteractedObjectBase
 
         duration += Time.deltaTime;
 
-        if (duration >= 1f && !isTakingMoney)
+        if (duration >= 0.5f && !isTakingMoney)
         {
             isTakingMoney = true;
         }

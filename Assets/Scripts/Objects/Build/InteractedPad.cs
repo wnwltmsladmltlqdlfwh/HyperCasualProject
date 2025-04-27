@@ -11,9 +11,6 @@ public class InteractedPad : MonoBehaviour
     [SerializeField]
     Collider _collider;
 
-    [SerializeField]
-    Material testMaterial;
-
     public float takeItemDelay;
     void Awake()
     {
@@ -27,11 +24,7 @@ public class InteractedPad : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (other.GetComponent<PlayerController>())
-        {
-            //interactedObj.player = other.gameObject.GetComponent<PlayerController>();
-            testMaterial.color = new Color(0f, 255f, 0f, 255f);
             interactedObj.TriggerEnter();
-        }
     }
 
     private void OnTriggerStay(Collider other)
@@ -51,10 +44,6 @@ public class InteractedPad : MonoBehaviour
     private void OnTriggerExit(Collider other)
     {
         if (other.GetComponent<PlayerController>())
-        {
-            testMaterial.color = new Color(0f, 255f, 255f, 255f);
-
             interactedObj.TriggerExit();
-        }
     }
 }
